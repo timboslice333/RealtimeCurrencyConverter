@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Currency Converter</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script>
+
+        $(document).ready(function(){
+            // connection to the api
+            var myHeaders = new Headers();
+            myHeaders.append("apikey", "");
+            var requestOptions = {
+                method: 'GET',
+                redirect: 'follow',
+            headers: myHeaders
+            };
+
+            // variable for from which currency, to which currency, and amount converted
+            var amount;
+            var to;
+            var from;
+
+            // function for checking valid input to api and return result if valid, return 0 if invalid
+            function performAction() {
+                // check basic input requirements
+                if (! isNaN(amount) && from.length == 3 && to.length == 3) {
+                    fetch("https://api.apilayer.com/exchangerates_data/convert?to=" + to + "&from=" + from + "&amount=" + amount, requestOptions)
+                    .then(response => response.text())
+                    .then(result => {
+                        // check if api returned valid output
+                        if (result.indexOf("result") != -1) {
+                            // find the converted amount in the result returned
+                            const startIndex = result.indexOf("result") + 9;
+                            const endIndex = result.substring(startIndex).indexOf(".") + 4 + startIndex;
+                            $('#display').text(result.substring(startIndex, endIndex))
+                        } else {
+                            // print 0 for error
+                            $('#display').text("0");
+                        }
+                    }) 
+                    .catch(error => console.log('error', error));
+                }
+            }
+
+            // update amount and check to perform conversion
+            $('#amount').keyup(function(){
+                amount = $(this).val();
+                performAction();
+            });
+
+            // update from and check to perform conversion
+            $('#from').keyup(function(){
+                from = $(this).val();
+                performAction();
+            });
+
+            // update to and check to perform conversion
+            $('#to').keyup(function(){
+                to = $(this).val();
+                performAction();
+            });
+        });
+        </script>
+        <style>
+            body {
+                background-color: lightblue;
+            }
+
+            h1 {
+                color: white;
+                text-align: center;
+            }
+            .input {
+                border: 3px outset blue;
+                text-align: center;
+                font-family: verdana;
+                font-size: 20px;
+            }
+            .input {
+                border: 3px outset blue;
+                text-align: center;
+                font-family: verdana;
+                font-size: 20px;
+            }
+            .result {
+                border: 3px outset blue;
+                text-align: center;
+                font-family: verdana;
+                font-size: 30px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Currency Converter</h1>
+        <p>
+            <div class = "input">
+                <label for="amount">Amount to Convert</label>
+                <input type="text" id="amount">
+                <br>
+                <label for="from">From</label>
+                <input type="text" id="from">
+                <br>
+                <label for="to">To</label>
+                <input type="text" id="to">               
+            </div>
+            <div class = "result">
+                <label for="display">Converted Amount = </label>
+                <span id="display"></span>
+            </div>
+        </p>
+    </body>
+</html>
